@@ -1,3 +1,0 @@
-json
-[{"event":"play-card","dealer":"test_dealer_03","player":"63574e234ce6f50027983fe2","turn":1,"contents":{"card_play":{"color":"green","special":"draw_2"},"number_turn_play":33},"dateCreated":1666906670867},
-{"event":"finish-turn","dealer":"test_dealer_03","player":"","turn":1,"contents":{"winner":"63574e234ce6f50027983fe2","score":{"63574e234ce6f50027983fe2":229,"63574e3f4ce6f50027983fe6":-17,"63574e2f4ce6f50027983fe4":-41,"63574e4c4ce6f50027983fe8":-171},"number_turn_play":33},"dateCreated":1666906670910}]
