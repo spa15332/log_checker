@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>log checker</title>
+    <link id="favicon" rel="icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+    <script>
+        $(function () {
+            var $header = $("#header");
+            var scrollSize = 300; //超えると表示
+            $(window).on("load scroll", function () {
+                var value = $(this).scrollTop();
+                if (value > scrollSize) {
+                    $header.addClass("scroll");
+                } else {
+                    $header.removeClass("scroll");
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <header id="header">
+        <div class="header-yumekawa">試合ログ
+            <div class="header-yumekawa-small">
+                <a href="/{{dealer_name}}/{{turn_num}}">(通常ver.へ)</a>
+            </div>
+        </div>
+        <div class="header-table">
+            <table class="design08">
+                <tr>
+                    <th class="width8">event_name</th>
+                    <th class="width8">場</th>
+                    {% for i in range(players|length) %}
+                    <th class="width20">{{players[i]}}</th>
+                    {% endfor %}
+                    <th class="width4">リバース</th>
+                </tr>
+            </table>
+        </div>
+    </header>
+
+    <div class="header-yumekawa">試合ログ
+        <div class="header-yumekawa-small">
+            <a href="/{{dealer_name}}/{{turn_num}}">(通常ver.へ)</a>
+        </div>
+    </div>
+    <div class="table">
+        <table class="design08">
+            <tr>
+                <th class="width8">event_name</th>
+                <th class="width8">場</th>
+                {% for i in range(players|length) %}
+                <th class="width20">{{players[i]}}</th>
+                {% endfor %}
+                <th class="width4">リバース</th>
+            </tr>
+            {% for res in res_list %}
+            {% if res[0][0] == "play-card" %}
+            <tr id="play-card">
+            {% else %}
+            <tr>
+            {% endif %}
+                {% for i in range(7) %}
+                {% if res[0][0] == "say-uno-and-play-card" and res[i] != "" and i >= 2 %}
+                <td id="say-uno-and-play-card">
+                {% else %}
+                <td>
+                {% endif %}
+                    <!-- <div class="flex"> -->
+                        {% for r in res[i] %}
+                        {% if r.__class__.__name__ == 'list' %}
+                            <div class="card {{r[0]}}">{{r[1]}}</div>
+                        {% else %}
+                            <div class="clear_box">{{r}}</div>
+                        {% endif %}
+                        {% endfor %}
+                    <!-- </div> -->
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>log checker</title>
+    <link id="favicon" rel="icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+    <script>
+        $(function () {
+            var $header = $("#header");
+            var scrollSize = 300; //超えると表示
+            $(window).on("load scroll", function () {
+                var value = $(this).scrollTop();
+                if (value > scrollSize) {
+                    $header.addClass("scroll");
+                } else {
+                    $header.removeClass("scroll");
+                }
+            });
+        });
+    </script>
+</head>
+ 
+<body>
+    <header id="header">
+        <h1>好きな対戦をえらんでね</h1>
+        <div class="header-table">
+            <table class="design09">
+                <tr>
+                    <th>対戦番号</th>
+                    <th>special_logic</th>
+                    <th>color_change_request</th>
+                    <th>color_of_wild</th>
+                    <th>play_draw_card</th>
+                    <th>challenge</th>
+                    <th>shuffle_wild</th>
+                    <th>public_card</th>
+                    <th>penalty</th>
+                </tr>
+            </table>
+        </div>
+    </header>
+    <h1>好きな対戦をえらんでね</h1>
+    <div >
+        <table class="design09">
+            <tr>
+                <th>対戦番号</th>
+                <th>special_logic</th>
+                <th>color_change_request</th>
+                <th>color_of_wild</th>
+                <th>play_draw_card</th>
+                <th>challenge</th>
+                <th>shuffle_wild</th>
+                <th>public_card</th>
+                <th>penalty</th>
+            </tr>
+            {% for i in range(N) %}
+            <tr>
+                <td><a href="/{{dealer_name}}/{{ i|e }}">{{ i|e }}</a></td>
+                <td>{% if turn_data[i].special_logic_exists %}○{% endif %}</td>
+                <td>{% if turn_data[i].color_change_request_exists %}○{% endif %}</td>
+                <td>{% if turn_data[i].color_of_wild_exists %}○{% endif %}</td>
+                <td>{% if turn_data[i].play_draw_card_exists %}○{% endif %}</td>
+                <td>{% if turn_data[i].challenge_exists %}○{% endif %}</td>
+                <td>{% if turn_data[i].shuffle_wild_exists %}○{% endif %}</td>
+                <td>{% if turn_data[i].public_card_exists %}○{% endif %}</td>    
+                <td>{% if turn_data[i].penalty_exists %}○{% endif %}</td>    
+            </tr>
+            {% endfor %}
+        </table>
+        
+    </div>
+</body>
+
+</html>
