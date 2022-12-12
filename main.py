@@ -7,9 +7,29 @@ from jinja2 import Environment, FileSystemLoader
 
 import json
 import os
+import shutil
+
+SOCKET_CONST = [
+    'join-room',
+    'receiver-card',
+    'first-player',
+    'color-of-wild',
+    'shuffle-wild',
+    'next-player',
+    'play-card',
+    'draw-card',
+    'play-draw-card',
+    'challenge',
+    'public-card',
+    'say-uno-and-play-card',
+    'say-uno-and-play-draw-card',
+    'pointed-not-say-uno',
+    'special-logic',
+    'finish-turn',
+    'finish-game'
+]
 
 # Class
-
 
 class Activity():
     def __init__(self, activity):
@@ -32,28 +52,7 @@ class Turn():
         self.play_order = activity.contents["play_order"]
         self.cards_receive = activity.contents["cards_receive"]
         self.activities = []
-
-        self.special_logic_exists = False
-        self.color_change_request_exists = False
-        self.color_of_wild_exists = False
-        self.play_draw_card_exists = False
-        self.challenge_exists = False
-        self.shuffle_wild_exists = False
-        self.public_card_exists = False
-        self.penalty_exists = False
-
-    def get_turn_data(self):
-        turn_data = {}
-        turn_data["special_logic_exists"] = self.special_logic_exists
-        turn_data["color_change_request_exists"] = self.color_change_request_exists
-        turn_data["color_of_wild_exists"] = self.color_of_wild_exists
-        turn_data["play_draw_card_exists"] = self.play_draw_card_exists
-        turn_data["challenge_exists"] = self.challenge_exists
-        turn_data["shuffle_wild_exists"] = self.shuffle_wild_exists
-        turn_data["public_card_exists"] = self.public_card_exists
-        turn_data["penalty_exists"] = self.penalty_exists
-
-        return turn_data
+        self.turn_data = []
 
     def make_activities(self):
         activities = self.activities
@@ -159,6 +158,14 @@ class Turn():
                 index = players.index(player)
                 temp_list[index+2] = sorted([self.parse_card(activity.contents["card_play"])])
 
+            if activity.event == "say-uno-and-play-draw-card":
+                player = activity.player
+                index = players.index(player)
+                if "card_play" in activity.contents:
+                    temp_list[index+2] = [self.parse_card(activity.contents["card_play"])]
+                else:
+                    temp_list[index+2] = ["no card play"]
+
             if activity.event == "finish-turn":
                 for i in range(4):
                     temp_list[i+2] = sorted([self.parse_card(a) for a in activity.contents["card_of_player"][players[i]]])
@@ -227,49 +234,55 @@ class Game():
             lines = f.readlines()
 
         for i, l in enumerate(lines):
-            if i < 1000000:
-                activity = Activity(json.loads(l))
+            # if i > 1000000: break
+            activity = Activity(json.loads(l))
 
-                if activity.event == "join-room":
-                    self.players[activity.contents["player_id"]
-                                 ] = activity.contents["player_name"]
-                elif activity.event == "first-player":
-                    turn = Turn(activity)
+            if activity.event == "join-room":
+                self.players[activity.contents["player_id"]
+                                ] = activity.contents["player_name"]
+            elif activity.event == "first-player":
+                turn = Turn(activity)
+                turn.activities.append(activity)
+                turn.turn_data.append(activity.event)
+            elif activity.event == "finish-turn":
+                turn.activities.append(activity)
+                self.turns.append(turn)
+                turn.turn_data.append(activity.event)
+                turn.turn_data = list(set(turn.turn_data))
+            elif activity.event == "finish-game":
+                self.finish_game_activity = activity
+            elif activity.event == "disconnect":
+                if "turn" in locals() and "finish_game_activity" not in dir(self):
                     turn.activities.append(activity)
-                elif activity.event == "finish-turn":
-                    turn.activities.append(activity)
-                    self.turns.append(turn)
-                elif activity.event == "finish-game":
-                    self.finish_game_activity = activity
-                elif activity.event == "disconnect":
-                    pass
+                    turn.turn_data.append(activity.event)
+            else:
+                turn.activities.append(activity)
+                turn.turn_data.append(activity.event)
 
-                else:
-                    if activity.event == "special-logic":
-                        turn.special_logic_exists = True
-                    elif activity.event == "color-change-request":
-                        turn.color_change_request_exists = True
-                    elif activity.event == "color-of-wild":
-                        turn.color_of_wild_exists = True
-                    elif activity.event == "play-draw-card":
-                        turn.play_draw_card_exists = True
-                    elif activity.event == "challenge":
-                        turn.challenge_exists = True
-                    elif activity.event == "shuffle-wild":
-                        turn.shuffle_wild_exists = True
-                    elif activity.event == "public-card":
-                        turn.public_card_exists = True
-                    elif activity.event == "penalty":
-                        turn.penalty_exists = True
 
-                    turn.activities.append(activity)
+    def save_separated_logs(self):
+        dir_path = self.path[:-4]
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path)
+        os.makedirs(dir_path, exist_ok=True)
+        for i in range(len(self.turns)):
+            turn_num = self.turns[i].turn
+            with open(f"{dir_path}/{turn_num}.log", mode='w') as f:
+                f.write('\n'.join([json.dumps(self.turns[i].activities[j].activity, ensure_ascii=False) for j in range(len(self.turns[i].activities))]))
+                print(self.turns[i].activities[0].activity)
+        game_data = {}
+        game_data["players"] = self.players
+        game_data["turn_data"] = [t.turn_data for t in self.turns]
+        with open(f"{dir_path}/game_data.json", mode='w') as f:
+            json.dump(game_data, f, indent=4)
 
     def __str__(self):
         return json.dumps(self.finish_game_activity.activity, indent=2, ensure_ascii=False)
 
 
+
 # const
-BASE_DIR = os.getcwd() + "/"
+BASE_DIR = os.getcwd().replace(os.sep,'/') + "/"
 LOGS_DIR = "logs/"
 
 
@@ -280,8 +293,14 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def root(request: Request):
-    path = BASE_DIR + LOGS_DIR
-    files = os.listdir(path)
+    dir_path = BASE_DIR + LOGS_DIR
+    temp_files = os.listdir(dir_path)
+
+    # 拡張子がlogのんだけ抽出
+    files = []
+    for f in temp_files:
+        if f[-4:] == ".log":
+            files.append(f)
 
     return templates.TemplateResponse("root.html", {"request": request, "files": files})
 
@@ -289,38 +308,93 @@ def root(request: Request):
 @app.get("/{dealer_name}")
 def game(request: Request, dealer_name):
 
-    path = BASE_DIR + LOGS_DIR + dealer_name + ".log"
-    if not os.path.exists(path):
+    dir_path = BASE_DIR + LOGS_DIR
+    file_path = dir_path + f"{dealer_name}.log"
+    if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="log_not_found")
-    game = Game(path)
 
-    turn_data = [t.get_turn_data() for t in game.turns]
+    if os.path.exists(f"{dir_path}/{dealer_name}/game_data.json"):
+        with open(f"{dir_path}/{dealer_name}/game_data.json") as f:
+            game_data = json.load(f)
+        turn_data = game_data["turn_data"]
+        N = len(turn_data)
 
-    return templates.TemplateResponse("game.html", {"request": request, "dealer_name": dealer_name, "N": len(game.turns), "turn_data": turn_data})
+    else:
+        game = Game(file_path)
+        game.save_separated_logs()
+        turn_data = [t.turn_data for t in game.turns]
+        N = len(game.turns)
+        
+    temp_socket_const = SOCKET_CONST[:]
+    temp_socket_const.remove("join-room")
+    temp_socket_const.remove("receiver-card")
+    temp_socket_const.remove("first-player")
+    temp_socket_const.remove("finish-turn")
+    temp_socket_const.remove("finish-game")
+
+    return templates.TemplateResponse("game.html", {"request": request, "dealer_name": dealer_name, "N": N, "turn_data": turn_data,"SOCKET_CONST": temp_socket_const})
 
 
 @app.get("/{dealer_name}/{turn_num}")
 def turn(request: Request, dealer_name, turn_num):
-    path = BASE_DIR + LOGS_DIR + dealer_name + ".log"
-    if not os.path.exists(path):
+    dir_path = BASE_DIR + LOGS_DIR + dealer_name
+    file_path = f"{dir_path}/{turn_num}.log"
+    if not os.path.exists(file_path) or not os.path.exists(f"{dir_path}/game_data.json"):
         raise HTTPException(status_code=404, detail="log_not_found")
-    game = Game(path)
+    with open(f"{dir_path}/game_data.json") as f:
+        game_data = json.load(f)
+    base_players = game_data["players"]    
 
-    res_list, players = game.turns[int(turn_num)].make_activities()
-    players = [game.players[p] for p in players]
+    with open(file_path) as f:
+        lines = f.readlines()   
+
+    for l in lines:
+        activity = Activity(json.loads(l))
+        if activity.event == "first-player":
+            turn = Turn(activity)
+            turn.activities.append(activity)
+        elif activity.event == "finish-turn":
+            turn.activities.append(activity)
+        elif activity.event == "disconnect":
+            if "turn" in locals():
+                turn.activities.append(activity)
+        else:
+            turn.activities.append(activity)
+
+    res_list, player_id_list = turn.make_activities()
+    players = [base_players[p] for p in player_id_list]
 
     return templates.TemplateResponse("turn.html", {"request": request, "dealer_name": dealer_name, "turn_num": turn_num, "players": players, "res_list": res_list})
 
 @app.get("/{dealer_name}/{turn_num}/transformed")
 def transformed_turn(request: Request, dealer_name, turn_num):
-    path = BASE_DIR + LOGS_DIR + dealer_name + ".log"
-    if not os.path.exists(path):
+    dir_path = BASE_DIR + LOGS_DIR + dealer_name
+    file_path = f"{dir_path}/{turn_num}.log"
+    if not os.path.exists(file_path) or not os.path.exists(f"{dir_path}/game_data.json"):
         raise HTTPException(status_code=404, detail="log_not_found")
-    game = Game(path)
+    with open(f"{dir_path}/game_data.json") as f:
+        game_data = json.load(f)
+    base_players = game_data["players"]    
 
-    unpersed_turn = UnparsedTurn(game.turns[int(turn_num)])
-    res_list, players = unpersed_turn.make_activities()
-    players = [game.players[p] for p in players]
+    with open(file_path) as f:
+        lines = f.readlines()   
+
+    for l in lines:
+        activity = Activity(json.loads(l))
+        if activity.event == "first-player":
+            turn = Turn(activity)
+            turn.activities.append(activity)
+        elif activity.event == "finish-turn":
+            turn.activities.append(activity)
+        elif activity.event == "disconnect":
+            if "turn" in locals():
+                turn.activities.append(activity)
+        else:
+            turn.activities.append(activity)
+
+    unpersed_turn = UnparsedTurn(turn)
+    res_list, player_id_list = unpersed_turn.make_activities()
+    players = [base_players[p] for p in player_id_list]
 
     return templates.TemplateResponse("transformed_turn.html", {"request": request, "dealer_name": dealer_name, "turn_num": turn_num, "players": players, "res_list": res_list})
 

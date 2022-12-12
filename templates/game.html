@@ -30,47 +30,32 @@
             <table class="design09">
                 <tr>
                     <th>対戦番号</th>
-                    <th>special_logic</th>
-                    <th>color_change_request</th>
-                    <th>color_of_wild</th>
-                    <th>play_draw_card</th>
-                    <th>challenge</th>
-                    <th>shuffle_wild</th>
-                    <th>public_card</th>
-                    <th>penalty</th>
+                    {% for s in SOCKET_CONST %}
+                    <th>{{s}}</th>
+                    {% endfor %}
                 </tr>
             </table>
         </div>
     </header>
     <h1>好きな対戦をえらんでね</h1>
-    <div >
+    <div>
         <table class="design09">
             <tr>
                 <th>対戦番号</th>
-                <th>special_logic</th>
-                <th>color_change_request</th>
-                <th>color_of_wild</th>
-                <th>play_draw_card</th>
-                <th>challenge</th>
-                <th>shuffle_wild</th>
-                <th>public_card</th>
-                <th>penalty</th>
+                {% for s in SOCKET_CONST %}
+                <th>{{s}}</th>
+                {% endfor %}
             </tr>
             {% for i in range(N) %}
+            {% set turn_num = i + 1 %}
             <tr>
-                <td><a href="/{{dealer_name}}/{{ i|e }}">{{ i|e }}</a></td>
-                <td>{% if turn_data[i].special_logic_exists %}○{% endif %}</td>
-                <td>{% if turn_data[i].color_change_request_exists %}○{% endif %}</td>
-                <td>{% if turn_data[i].color_of_wild_exists %}○{% endif %}</td>
-                <td>{% if turn_data[i].play_draw_card_exists %}○{% endif %}</td>
-                <td>{% if turn_data[i].challenge_exists %}○{% endif %}</td>
-                <td>{% if turn_data[i].shuffle_wild_exists %}○{% endif %}</td>
-                <td>{% if turn_data[i].public_card_exists %}○{% endif %}</td>    
-                <td>{% if turn_data[i].penalty_exists %}○{% endif %}</td>    
+                <td><a href="/{{dealer_name}}/{{loop.index}}">{{loop.index}}</a></td>
+                {% for s in SOCKET_CONST %}
+                <td>{% if s in turn_data[i] %}○{% endif %}</td>
+                {% endfor %}
             </tr>
             {% endfor %}
         </table>
-        
     </div>
 </body>
 

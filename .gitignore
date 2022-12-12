@@ -16,7 +16,8 @@
 
 # Log files
 
-logs/*.log
+*.log
+
 
 # Package files
 
@@ -81,3 +82,6 @@ Thumbs.db
 *.wmv
 
 
+# other files
+
+game_data.json

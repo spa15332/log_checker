@@ -60,14 +60,14 @@
                 <th class="width4">リバース</th>
             </tr>
             {% for res in res_list %}
-            {% if res[0][0] == "play-card" %}
+            {% if res[0][0] == "play-card" or res[0][0] == "play-draw-card" %}
             <tr id="play-card">
             {% else %}
             <tr>
             {% endif %}
                 {% for i in range(7) %}
-                {% if res[0][0] == "say-uno-and-play-card" and res[i] != "" and i >= 2 %}
-                <td id="say-uno-and-play-card">
+                {% if (res[0][0] == "say-uno-and-play-card" or res[0][0] == "say-uno-and-play-draw-card") and res[i] != "" and i >= 2 %}
+                <td id="say-uno">
                 {% else %}
                 <td>
                 {% endif %}
