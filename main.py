@@ -122,6 +122,7 @@ class Turn():
                 player = activity.player
                 index = players.index(player)
                 if "card_play" in activity.contents:
+                    temp_list[1] = [self.parse_card(activity.contents["card_play"])]
                     temp_list[index+2] = [self.parse_card(activity.contents["card_play"])]
                 else:
                     temp_list[index+2] = ["no card play"]
@@ -165,6 +166,7 @@ class Turn():
                 player = activity.player
                 index = players.index(player)
                 if "card_play" in activity.contents:
+                    temp_list[1] = [self.parse_card(activity.contents["card_play"])]
                     temp_list[index+2] = [self.parse_card(activity.contents["card_play"])]
                 else:
                     temp_list[index+2] = ["no card play"]
