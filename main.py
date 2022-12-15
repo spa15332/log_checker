@@ -9,6 +9,9 @@ import json
 import os
 import shutil
 
+# const
+LOGS_DIR = os.getcwd().replace(os.sep,'/') + "/logs/"
+
 SOCKET_CONST = [
     'join-room',
     'receiver-card',
@@ -280,12 +283,6 @@ class Game():
         return json.dumps(self.finish_game_activity.activity, indent=2, ensure_ascii=False)
 
 
-
-# const
-BASE_DIR = os.getcwd().replace(os.sep,'/') + "/"
-LOGS_DIR = "logs/"
-
-
 # FasrAPI
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -293,7 +290,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def root(request: Request):
-    dir_path = BASE_DIR + LOGS_DIR
+    dir_path = LOGS_DIR
     temp_files = os.listdir(dir_path)
 
     # 拡張子がlogのんだけ抽出
@@ -308,7 +305,7 @@ def root(request: Request):
 @app.get("/{dealer_name}")
 def game(request: Request, dealer_name):
 
-    dir_path = BASE_DIR + LOGS_DIR
+    dir_path = LOGS_DIR
     file_path = dir_path + f"{dealer_name}.log"
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="log_not_found")
@@ -329,15 +326,19 @@ def game(request: Request, dealer_name):
     temp_socket_const.remove("join-room")
     temp_socket_const.remove("receiver-card")
     temp_socket_const.remove("first-player")
-    temp_socket_const.remove("finish-turn")
     temp_socket_const.remove("finish-game")
+    temp_socket_const.append("penalty")
+    
+    # 深刻なデバッグの時用…
+    # temp_socket_const.remove("finish-turn")
+    # temp_socket_const.append("disconnect")
 
     return templates.TemplateResponse("game.html", {"request": request, "dealer_name": dealer_name, "N": N, "turn_data": turn_data,"SOCKET_CONST": temp_socket_const})
 
 
 @app.get("/{dealer_name}/{turn_num}")
 def turn(request: Request, dealer_name, turn_num):
-    dir_path = BASE_DIR + LOGS_DIR + dealer_name
+    dir_path = LOGS_DIR + dealer_name
     file_path = f"{dir_path}/{turn_num}.log"
     if not os.path.exists(file_path) or not os.path.exists(f"{dir_path}/game_data.json"):
         raise HTTPException(status_code=404, detail="log_not_found")
@@ -368,7 +369,7 @@ def turn(request: Request, dealer_name, turn_num):
 
 @app.get("/{dealer_name}/{turn_num}/transformed")
 def transformed_turn(request: Request, dealer_name, turn_num):
-    dir_path = BASE_DIR + LOGS_DIR + dealer_name
+    dir_path = LOGS_DIR + dealer_name
     file_path = f"{dir_path}/{turn_num}.log"
     if not os.path.exists(file_path) or not os.path.exists(f"{dir_path}/game_data.json"):
         raise HTTPException(status_code=404, detail="log_not_found")

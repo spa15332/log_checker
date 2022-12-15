@@ -25,9 +25,12 @@
  
 <body>
     <header id="header">
-        <h1>好きな対戦をえらんでね</h1>
+        <div class="header-yumekawa">
+            好きな対戦をえらんでね
+        </div>
+        <!-- <h1>好きな対戦をえらんでね</h1> -->
         <div class="header-table">
-            <table class="design09">
+            <table class="game">
                 <tr>
                     <th>対戦番号</th>
                     {% for s in SOCKET_CONST %}
@@ -37,9 +40,12 @@
             </table>
         </div>
     </header>
-    <h1>好きな対戦をえらんでね</h1>
+    <div class="header-yumekawa">
+        好きな対戦をえらんでね
+    </div>
+    <!-- <h1>好きな対戦をえらんでね</h1> -->
     <div>
-        <table class="design09">
+        <table class="game">
             <tr>
                 <th>対戦番号</th>
                 {% for s in SOCKET_CONST %}

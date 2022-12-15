@@ -79,9 +79,7 @@ header {
     border: solid 1px #666666;
 }
 
-
-
-.design08 {
+.root {
     width: 80%;
     table-layout: fixed;
     margin: 0 auto;
@@ -90,44 +88,93 @@ header {
     border-spacing: 0;
 }
 
-.design08 th {
+.root th {
     padding: 10px;
     background: #a47fff;
     border: solid 1px #666666;
     color: #ffffff;
 }
 
-.design08 th.width8 {
-    width: 8%;
-}
-
-.design08 th.width4 {
-    width: 4%;
-}
-
-.design08 th.width20 {
-    width: 20%;
-}
-
-.design08 th.width20 {
-    width: 20%;
-}
-
-.design08 td {
+.root td {
     padding: 10px;
     border: solid 1px #666666;
     word-wrap: break-word;
 }
 
-.design08 td:nth-child(1) {
+
+.game {
+    width: 80%;
+    table-layout: fixed;
+    margin: 0 auto;
+    text-align: center;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.game th {
+    padding: 10px;
+    background: #a47fff;
+    border: solid 1px #666666;
+    color: #ffffff;
+}
+
+.game td {
+    padding: 10px;
+    border: solid 1px #666666;
+    word-wrap: break-word;
+}
+
+.game td:nth-child(1) {
     background: #f8d2ff;
 }
 
-.design08 td:nth-child(2) {
+.turn {
+    width: 80%;
+    table-layout: fixed;
+    margin: 0 auto;
+    text-align: center;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.turn th {
+    padding: 10px;
+    background: #a47fff;
+    border: solid 1px #666666;
+    color: #ffffff;
+}
+
+.turn th.width8 {
+    width: 8%;
+}
+
+.turn th.width4 {
+    width: 4%;
+}
+
+.turn th.width20 {
+    width: 20%;
+}
+
+.turn th.width20 {
+    width: 20%;
+}
+
+.turn td {
+    padding: 10px;
+    border: solid 1px #666666;
+    word-wrap: break-word;
+}
+
+.turn td:nth-child(1) {
     background: #f8d2ff;
 }
 
-.design08 td:nth-child(7) {
+.turn td:nth-child(2) {
+    background: #f8d2ff;
+}
+
+.turn td:nth-child(7) {
     background: #ffffff;
 }
 
