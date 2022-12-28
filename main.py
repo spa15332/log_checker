@@ -85,11 +85,14 @@ class Turn():
                     temp_list[6] = ["R"]
 
             if activity.event == "play-card":
-                played_card = activity.contents["card_play"]
-                temp_list[1] = [self.parse_card(played_card)]
                 player = activity.player
                 index = players.index(player)
-                temp_list[index+2] = [self.parse_card(activity.contents["card_play"])]
+                if not "card_play" in activity.contents:
+                    temp_list[index+2] = ["no card play"]
+                else:
+                    played_card = activity.contents["card_play"]
+                    temp_list[1] = [self.parse_card(played_card)]
+                    temp_list[index+2] = [self.parse_card(activity.contents["card_play"])]
 
             if activity.event == "special-logic":
                 player = activity.player
