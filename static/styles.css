@@ -23,11 +23,11 @@ h1 {
 }
 
 header {
+    margin: 0 8px 0;
     position: fixed;
     z-index: 999;
     top: 0;
     left: 0;
-    width: 100%;
     padding: 0px 0px;
     background: #FFFFFF;
     box-sizing: border-box;
