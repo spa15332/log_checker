@@ -135,6 +135,8 @@ header {
     text-align: center;
     border-collapse: collapse;
     border-spacing: 0;
+    overflow: hidden;
+    overflow-wrap: break-word;
 }
 
 .turn th {
@@ -182,7 +184,7 @@ header {
     background: #d2cfff;
 }
 
-#say-uno {
+#yell_uno {
     background: #ffb3de;
 }
 

@@ -25,7 +25,7 @@
 
 <body>
     <header id="header">
-        <div class="header-yumekawa">試合ログ
+        <div class="header-yumekawa">対戦ログ
             <div class="header-yumekawa-small">
                 <a href="/{{dealer_name}}/{{turn_num}}">(通常ver.へ)</a>
             </div>
@@ -44,7 +44,7 @@
         </div>
     </header>
 
-    <div class="header-yumekawa">試合ログ
+    <div class="header-yumekawa">対戦ログ
         <div class="header-yumekawa-small">
             <a href="/{{dealer_name}}/{{turn_num}}">(通常ver.へ)</a>
         </div>
@@ -66,8 +66,8 @@
             <tr>
             {% endif %}
                 {% for i in range(7) %}
-                {% if (res[0][0] == "say-uno-and-play-card" or res[0][0] == "say-uno-and-play-draw-card") and res[i] != "" and i >= 2 %}
-                <td id="say-uno">
+                {% if res[0][0] == "play-card" and "UNO" in res[i] and i >= 2 %}
+                <td id="yell_uno">
                 {% else %}
                 <td>
                 {% endif %}
