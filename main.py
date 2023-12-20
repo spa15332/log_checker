@@ -24,8 +24,8 @@ SOCKET_CONST = [
     'play-draw-card',
     'challenge',
     'public-card',
-    'say-uno-and-play-card',
-    'say-uno-and-play-draw-card',
+#    'say-uno-and-play-card',
+#    'say-uno-and-play-draw-card',
     'pointed-not-say-uno',
     'special-logic',
     'finish-turn',
@@ -89,6 +89,10 @@ class Turn():
                 index = players.index(player)
                 if not "card_play" in activity.contents:
                     temp_list[index+2] = ["no card play"]
+                elif activity.contents["yell_uno"]:
+                    temp_list[1] = [self.parse_card(played_card)]
+                    temp_list[index+2] = [self.parse_card(activity.contents["card_play"])]
+                    temp_list[index+2] += ["", "UNO"]
                 else:
                     played_card = activity.contents["card_play"]
                     temp_list[1] = [self.parse_card(played_card)]
@@ -246,7 +250,7 @@ class Game():
             activity = Activity(json.loads(l))
 
             if activity.event == "join-room":
-                self.players[activity.contents["player_id"]
+                self.players[activity.contents["player_code"]
                                 ] = activity.contents["player_name"]
             elif activity.event == "first-player":
                 turn = Turn(activity)
@@ -367,8 +371,8 @@ def turn(request: Request, dealer_name, turn_num):
         else:
             turn.activities.append(activity)
 
-    res_list, player_id_list = turn.make_activities()
-    players = [base_players[p] for p in player_id_list]
+    res_list, player_code_list = turn.make_activities()
+    players = [base_players[p] for p in player_code_list]
 
     return templates.TemplateResponse("turn.html", {"request": request, "dealer_name": dealer_name, "turn_num": turn_num, "players": players, "res_list": res_list})
 
@@ -399,8 +403,8 @@ def transformed_turn(request: Request, dealer_name, turn_num):
             turn.activities.append(activity)
 
     unpersed_turn = UnparsedTurn(turn)
-    res_list, player_id_list = unpersed_turn.make_activities()
-    players = [base_players[p] for p in player_id_list]
+    res_list, player_code_list = unpersed_turn.make_activities()
+    players = [base_players[p] for p in player_code_list]
 
     return templates.TemplateResponse("transformed_turn.html", {"request": request, "dealer_name": dealer_name, "turn_num": turn_num, "players": players, "res_list": res_list})
 
